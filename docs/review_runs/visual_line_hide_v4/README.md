@@ -86,8 +86,12 @@ python scripts/route_c_bg_sampling_band_suppress/line_band_contrast_suppress_v4.
 
 ### 审核可提交产物（本目录，已入 Git）
 
-- **`baseline_v3_vs_v4_compare.jpg`** — 主推 v4 对照 v3 baseline 的全图 + 4 zoom
-  三行对照
+- **`baseline_v3_vs_v4_compare.jpg`** — `v4_rt1.0_cl31_cw1`（shortlist 主推）
+  对照 v3 baseline 的全图 + 4 zoom 三行对照
+  > ⚠️ 注：v4 脚本里的自动 main-pick 是按 `residual_p99_v4` 最小排序，会选到
+  > `v4_rt1.0_cl0`（p99=2.558）。这与 shortlist 用的 `cleanup_on_line_fraction`
+  > + `core_residual_v4` 准则选出来的 `v4_rt1.0_cl31_cw1`（p99=2.579）不同。
+  > 本 review 包里的 compare 图已用 shortlist 主推变体重新导出。
 - **`zoom_compare_sheet.jpg`** — raw / v3 baseline / Top 5 v4 variants × 4 zoom
 - `compare_sheet.jpg` — 全部 15 个变体的 cleanup_overlay / suppressed / removed
 - `contact_sheet.jpg` — 全部 15 个 suppressed 缩略图
