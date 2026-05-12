@@ -1,0 +1,59 @@
+﻿# Core Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# System/editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Legacy snapshot (kept locally, not committed)
+legacy_workspace/
+
+# Raw / heavy image data
+*.tif
+*.tiff
+*.npy
+*.npz
+*.h5
+*.hdf5
+
+# Generated outputs and reports
+outputs/
+**/outputs/
+out/
+**/out/
+results/
+**/results/
+reports/
+**/reports/
+
+# Model artifacts
+checkpoints/
+**/checkpoints/
+weights/
+**/weights/
+models/
+**/models/
+*.pt
+*.pth
+*.ckpt
+*.onnx
+
+# Image artifacts (result previews/overlays/crops)
+*.png
+*.jpg
+*.jpeg
+*.bmp
+*.webp
+*.gif
+
+# Explicit file requested to keep out of Git
+data.tif

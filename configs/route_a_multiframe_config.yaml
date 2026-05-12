@@ -1,0 +1,323 @@
+reference_image: "0000.tif"
+
+groups:
+  axis2_x:
+    files: ["0-100.tif", "0000.tif", "0100.tif"]
+    transform_model: "translation"
+    enabled: true
+
+  axis4_y:
+    files: ["000-1.tif", "0000.tif", "0001.tif"]
+    transform_model: "translation"
+    enabled: true
+
+  axis1_angle:
+    files: ["-2000.tif", "-1000.tif", "0000.tif", "1000.tif", "2000.tif"]
+    transform_model: "similarity"
+    enabled: true
+
+  axis3_mag:
+    files: ["00-10.tif", "0000.tif", "0010.tif"]
+    transform_model: "similarity"
+    enabled: false
+
+# Per-group registration overrides. axis1_angle uses heavier low-pass + similarity.
+group_registration_overrides:
+  axis1_angle:
+    registration_blur_sigma: 12.0
+    use_ecc_refine: true
+    ecc_max_iterations: 500
+    ecc_eps: 1.0e-7
+    max_abs_shift_px: 400
+
+# Which group set feeds each combined_fused_delined version.
+combined_versions:
+  v1:
+    groups: ["axis2_x", "axis4_y"]
+  v2:
+    groups: ["axis2_x", "axis4_y", "axis1_angle"]
+
+normalization:
+  percentile_low: 0.5
+  percentile_high: 99.5
+  output_dtype: "float32"
+  match_reference_median_mad: true
+  preview_percentile_low: 1.0
+  preview_percentile_high: 99.0
+
+registration:
+  registration_blur_sigma: 5.0
+  use_phase_correlation_init: true
+  use_ecc_refine: true
+  ecc_max_iterations: 300
+  ecc_eps: 1.0e-6
+  allow_ecc_failure_fallback: true
+  max_abs_shift_px: 200
+  qc_crop_box: [800, 800, 1500, 1500]
+
+fusion:
+  method: "median"
+  compute_mad: true
+  compute_std: true
+  combined_method: "median"
+
+line_risk:
+  normalize_percentile_high: 99.5
+  high_risk_percentile: 95.0
+
+line_mask:
+  percentiles: [90, 95, 97]
+  primary_percentile: 97
+  morphology_close_px: 1
+  distance_clip_px: 60
+  remove_small_objects_px: 0
+
+static_line_mask:
+  sigmas: [1.0, 2.0, 3.5, 5.0, 8.0]
+  detect_bright: true
+  detect_dark: true
+  source_for_mask: "fused"
+  percentiles: [90, 95, 97]
+  primary_percentile: 95
+  morphology_close_px: 1
+  distance_clip_px: 60
+
+# NEW: shape-filtered static line mask. We keep only long thin components.
+refined_static_line_mask:
+  source_percentile: 90          # threshold the raw Sato response at this percentile
+  morphology_close_px: 3         # link broken segments before component analysis
+  min_area_px: 30
+  min_major_axis_length: 30
+  min_aspect_ratio: 4.0
+  min_eccentricity: 0.90
+  min_skeleton_length_px: 25
+  max_circularity: 0.6           # drop near-round components even if large
+  distance_clip_px: 60
+
+combined_line_exclusion:          # legacy v1 (kept for compatibility)
+  dilate_px_list: [8, 12, 16]
+  primary_dilate_px: 12
+  distance_clip_px: 60
+
+# NEW: refined exclusion = dynamic skeleton ∪ refined_static_skeleton, three dilations
+refined_combined_line_exclusion:
+  dilate_px_list: [6, 8, 10]
+  primary_dilate_px: 8
+  distance_clip_px: 60
+
+invalid_region:
+  border_px: 32
+  dark_vignette_norm_max: 0.02
+  bright_saturation_norm_min: 0.98
+  vignette_min_area_px: 1500
+  saturation_min_area_px: 800
+  morphology_close_px: 9
+  morphology_open_px: 5
+  use_warp_valid_mask: true
+  invalid_dilate_px: 3
+
+structure_tensor:
+  sigma: 1.5
+  patch_radius_px: 8
+  high_anisotropy_threshold: 6.0
+
+blob_detection:
+  detect_bright: true
+  detect_dark: true
+  min_diameter_px: 3
+  max_diameter_px: 8
+  target_diameter_px: 5.5
+  log_sigma_min: 1.0
+  log_sigma_max: 2.9
+  num_sigma: 8
+  threshold_abs: 0.05
+  threshold_rel: 0.04
+  overlap: 0.5
+  exclude_border_px: 32
+
+candidate_filter:
+  min_area_px: 5
+  max_area_px: 120
+  min_circularity: 0.25
+  max_aspect_ratio: 4.0
+  max_candidates: 1000
+  nms_distance_px: 5
+
+candidate_features:
+  patch_radius_for_line_risk_px: 8
+  per_frame_anisotropy_threshold: 6.0
+  per_frame_spot_contrast_threshold: 0.015
+  crop_radius_for_contrast_px: 5
+  annulus_inner_radius_px: 8
+  annulus_outer_radius_px: 14
+
+# Stage 1.3 — strict HC-clean uses refined masks now.
+candidate_classification:
+  high_confidence_clean:
+    min_diameter_px: 3
+    max_diameter_px: 7
+    min_area_px: 10
+    max_area_px: 80
+    min_circularity: 0.5
+    max_circularity: 1.4
+    max_aspect_ratio: 1.8
+    max_anisotropy: 2.5
+    min_distance_to_dynamic_skeleton_px: 6
+    min_distance_to_refined_static_skeleton_px: 8
+    min_distance_to_refined_combined_exclusion_px: 8
+    max_mean_line_risk_in_patch: 0.30
+    min_uncovered_frame_count: 2
+    min_spot_present_when_uncovered: 2
+    min_local_contrast: 0.015
+    min_border_distance_px: 40
+    max_output: 200
+  line_adjacent_uncertain:
+    min_diameter_px: 3
+    max_diameter_px: 8
+    min_area_px: 6
+    min_circularity: 0.3
+    max_aspect_ratio: 3.0
+    max_distance_to_refined_combined_exclusion_px: 8
+    or_mean_line_risk_above: 0.40
+    max_output: 300
+  texture_uncertain:
+    min_distance_to_refined_combined_exclusion_px: 6
+    min_anisotropy: 4.0
+    or_aspect_ratio_above: 2.0
+    max_output: 300
+  rejected_line_like:
+    min_anisotropy: 8.0
+    max_aspect_ratio_strict: 4.0
+    drop_in_invalid_region: true
+  rejected_tiny_response:
+    max_area_px: 4
+    drop_if_circularity_nan: true
+    drop_if_circularity_below: 0.10
+
+# Parameter sweep — applies on top of refined masks.
+parameter_sweep:
+  conservative:
+    min_distance_to_refined_combined_exclusion_px: 12
+    max_anisotropy: 2.0
+  medium:
+    min_distance_to_refined_combined_exclusion_px: 8
+    max_anisotropy: 2.5
+  loose:
+    min_distance_to_refined_combined_exclusion_px: 6
+    max_anisotropy: 3.0
+  ultra_loose_sanity_check:
+    min_distance_to_refined_combined_exclusion_px: 4
+    max_anisotropy: 4.0
+    min_uncovered_frame_count: 1
+    min_spot_present_when_uncovered: 1
+
+mask_coverage:
+  too_aggressive_threshold: 0.50    # fraction; flag in report if exceeded
+
+# Stage 3 — manual review reranking (per task_stage3.md §14)
+manual_review:
+  enabled: true
+  crop_size: 96
+  top_k: [50, 100]
+  target_diameter_px: 5.5
+  source_version: "v2"
+  source_categories:
+    - line_adjacent_uncertain_v2
+    - texture_uncertain_v2
+  dedupe_distance_px: 4
+  exclude_in_invalid_region: true
+  # Final score formula (also written into report.html):
+  #   review_priority_score =
+  #     0.30 * diameter_closeness_score
+  #   + 0.25 * shape_score
+  #   + 0.30 * persistence_score
+  #   - 0.10 * line_penalty_soft
+  #   - 0.05 * texture_penalty_soft
+  weights:
+    diameter_closeness: 0.30
+    shape: 0.25
+    persistence: 0.30
+    line_penalty_soft: 0.10
+    texture_penalty_soft: 0.05
+  shape_subscore_thresholds:
+    circularity_low: 0.5
+    circularity_high: 1.4
+    aspect_ratio_good: 1.5
+    aspect_ratio_mid: 2.5
+    anisotropy_good: 2.0
+    anisotropy_mid: 3.5
+  persistence:
+    min_spot_present_when_uncovered_for_full_credit: 2
+    weak_evidence_penalty: 0.5
+
+line_removal:
+  enabled: true
+  input_images:
+    - "0000"
+    - "combined_fused_delined"
+    - "combined_fused_delined_v2"
+  mask_radii: [2, 4, 6]
+  too_aggressive_for_inpainting_threshold: 0.35
+  protect_candidates: true
+  protect_radius_extra_px: 2
+  protect_min_radius_px: 4
+  comparison_zoom_boxes: [[800, 800, 1080, 1080], [1450, 700, 1730, 980]]
+  methods:
+    local_median:
+      enabled: true
+      window_sizes: [15, 25, 41]
+    telea:
+      enabled: true
+      radii: [3, 5, 7]
+    navier_stokes:
+      enabled: true
+      radii: [3, 5, 7]
+
+cleaned_candidate_detection:
+  enabled: true
+  selected_variants:
+    - "cleaned_0000_r4_telea_rad5_protect"
+    - "cleaned_0000_r4_localmedian_w25_protect"
+    - "cleaned_fused_v1_r4_telea_rad5_protect"
+    - "cleaned_fused_v1_r4_localmedian_w25_protect"
+  min_diameter_px: 3
+  max_diameter_px: 7
+  target_diameter_px: 5.5
+  min_area_px: 10
+  max_area_px: 80
+  min_circularity: 0.5
+  max_circularity: 1.4
+  max_aspect_ratio: 2.0
+  max_anisotropy: 3.0
+  max_candidates_per_variant: 300
+  log_sigma_min: 1.0
+  log_sigma_max: 2.6
+  num_sigma: 8
+  threshold_abs: 0.04
+  overlap: 0.5
+  exclude_border_px: 32
+  nms_distance_px: 4
+  crops_top_n: 100
+  crop_size: 96
+
+crop_export:
+  crop_size: 80
+  draw_candidate_circle: true
+  include_all_aligned_frames: true
+  include_fusion: true
+  include_line_risk: true
+  include_static_line_mask: true
+  include_combined_exclusion_mask: true
+  include_safe_search_mask: true
+  per_category_caps:
+    high_confidence_clean: 200
+    line_adjacent_uncertain: 200
+    texture_uncertain: 200
+    rejected_line_like: 60
+    rejected_tiny_response: 40
+
+report:
+  max_high_confidence_in_html: 200
+  max_line_adjacent_in_html: 80
+  max_texture_uncertain_in_html: 60
+  max_rejected_in_html: 30
