@@ -1,0 +1,33 @@
+{
+  "input": "data/data.tif",
+  "image_shape": [
+    2450,
+    2340
+  ],
+  "patch_size": 512,
+  "stride": 256,
+  "num_patches": 81,
+  "channel_names": [
+    "raw",
+    "abs",
+    "sato",
+    "black_score",
+    "coherence",
+    "gradient"
+  ],
+  "pseudo_label_stats": {
+    "sato_pos_threshold": 0.33674899131059643,
+    "sato_loose_threshold": 0.23324358835816383,
+    "black_pos_sigma": 1.0,
+    "black_loose_sigma": 0.5,
+    "positive_coverage_pct": 12.566753881039594,
+    "ignore_coverage_pct": 32.54866562009419,
+    "background_coverage_pct": 54.88458049886621
+  },
+  "label_values": {
+    "background": 0,
+    "line": 1,
+    "ignore": 255
+  },
+  "black_score_norm_scale_p99_5": 2.8205669021606443
+}

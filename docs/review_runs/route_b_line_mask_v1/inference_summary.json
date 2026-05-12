@@ -1,0 +1,38 @@
+{
+  "model_checkpoint": "outputs\\route_b_train_v1\\checkpoints\\best.pt",
+  "input_image": "data\\data.tif",
+  "image_shape": [
+    2450,
+    2340
+  ],
+  "channel_names": [
+    "raw",
+    "abs",
+    "sato",
+    "black_score",
+    "coherence",
+    "gradient"
+  ],
+  "patch_size": 512,
+  "stride": 256,
+  "thresholds": {
+    "thr03": {
+      "threshold": 0.3,
+      "mask_pixel_ratio": 0.23852258852258854
+    },
+    "thr05": {
+      "threshold": 0.5,
+      "mask_pixel_ratio": 0.22609837781266354
+    },
+    "thr07": {
+      "threshold": 0.7,
+      "mask_pixel_ratio": 0.21434641548927263
+    }
+  },
+  "prob_min": 1.2447094377421308e-05,
+  "prob_max": 0.9999998807907104,
+  "prob_mean": 0.2282424122095108,
+  "prob_p50": 0.0007141288369894028,
+  "prob_p90": 0.9995893836021423,
+  "prob_p99": 0.999866783618927
+}

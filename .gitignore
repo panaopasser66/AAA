@@ -57,3 +57,8 @@ models/
 
 # Explicit file requested to keep out of Git
 data.tif
+
+# Allow curated review-run artifacts under docs/ to be committed
+!docs/review_runs/**/*.png
+!docs/review_runs/**/*.jpg
+!docs/review_runs/**/*.jpeg
