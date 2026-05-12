@@ -1,0 +1,19 @@
+{
+  "source": "synthesized",
+  "composition": "sigmoid(gain*sato_norm*score - bias)",
+  "logit_gain": 6.0,
+  "logit_bias": 2.0,
+  "smooth_sigma": 0.8,
+  "sato_p99": 186.95403884887665,
+  "global_mad": 178.499828734375,
+  "prob_p50": 0.1424337923526764,
+  "prob_p90": 0.2581042945384981,
+  "prob_p99": 0.5672305810451495,
+  "prob_coverage_gt_0.5_pct": 1.5824350252921682,
+  "prob_coverage_gt_0.6_pct": 0.7952206523635095,
+  "prob_coverage_gt_0.7_pct": 0.3643293214721786,
+  "prob_coverage_gt_0.25_pct": 10.862044304901449,
+  "prob_coverage_gt_0.35_pct": 4.521925693354264,
+  "prob_coverage_gt_0.45_pct": 2.215925344496773,
+  "sato_path": "outputs\\prepare\\responses\\response_sato.tif"
+}
